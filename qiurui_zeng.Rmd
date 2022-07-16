@@ -1,0 +1,58 @@
+---
+title: "qiurui_zeng"
+author: "Qiurui Zeng"
+date: "7/15/2022"
+output: html_document
+---
+
+**Name: Qiurui Zeng**
+**PID: A59003429 **
+
+```{r}
+#load packages
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+```
+
+```{r}
+#read in downloaded csv file 
+df <- read.csv("covid19_variants.csv")
+
+#filter by variant name
+df <- df %>% filter(variant_name != 'Other' & variant_name != 'Total')
+
+# add a column with only y_m
+df$date_y_m <- strftime(df$date,format="%m-%Y")
+
+# sort by date
+df <- df[order(as.Date(df$date, format="%Y/%m/%d")),]
+df.head()
+```
+
+```{r}
+#get the dirst day of each month
+#prepare x tick breaks
+first_day_of_month <- unique(floor_date(ymd(df$date), 'month'))
+first_day_of_month <- as.character(first_day_of_month)
+typeof(first_day_of_month)
+first_day_of_month
+```
+```{r}
+#prepare x tick label
+month_year <- unique(df$date_y_m)
+typeof(month_year)
+month_year
+```
+
+```{r}
+p <- ggplot(data=df, aes(x=date,y=percentage)) + #plot
+  geom_line(aes(group=variant_name,color=variant_name)) + #color by variant_name
+  ylab('Percentage of sequenced specimens') + #change y label
+  ggtitle('Covid-19 variants in California') + #change title
+  theme(axis.text.x = element_text(angle=45, hjust=1))+ # change x tick label position
+  scale_x_discrete(breaks=first_day_of_month,labels=month_year) #change x ticks
+```
+
+
+
